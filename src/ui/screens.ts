@@ -44,10 +44,22 @@ export class TitleScreen {
     }
   }
 
+  /** Goes back one screen. Returns false on the main title screen. */
+  back(): boolean {
+    const box = this.el.querySelector('.confirm');
+    if (box) {
+      box.remove();
+      return true;
+    }
+    if (this.view === 'create') this.renderSlots();
+    else if (this.view === 'slots') this.renderMain();
+    else return false;
+    return true;
+  }
+
   handleUiAction(a: UiAction): void {
     if (a === 'back') {
-      if (this.view === 'create') this.renderSlots();
-      else if (this.view === 'slots') this.renderMain();
+      this.back();
       return;
     }
     const sheet = this.el.querySelector<HTMLElement>('.confirm');
@@ -84,7 +96,7 @@ export class TitleScreen {
       h('div', { class: 'title-menu' },
         h('button', { class: 'big', onclick: () => { sfx('click'); this.renderSlots(); } }, hasSaves ? 'Play' : 'Begin Your Legend'),
         h('button', { onclick: () => this.showControls() }, 'Controls'),
-        h('button', { onclick: () => this.toggleFullscreen() }, 'Fullscreen'),
+        h('button', { class: 'fullscreen-only', onclick: () => this.toggleFullscreen() }, 'Fullscreen'),
       ),
       h('div', { class: 'title-foot' }, 'Touch, keyboard and gamepad supported. Best played in landscape.'),
     );

@@ -9,10 +9,11 @@
   --good: #7ad06a;
   --bad: #e06a5a;
   --focus: #ffd060;
-  --safe-l: env(safe-area-inset-left, 0px);
-  --safe-r: env(safe-area-inset-right, 0px);
-  --safe-t: env(safe-area-inset-top, 0px);
-  --safe-b: env(safe-area-inset-bottom, 0px);
+  /* the Android app provides --safe-area-inset-*; browsers use env() */
+  --safe-l: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  --safe-r: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+  --safe-t: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --safe-b: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
 }
 
 * {
@@ -1732,4 +1733,9 @@ input {
 
 .swatch.sel {
   box-shadow: 0 0 0 3px var(--focus);
+}
+
+/* inside the Android app the game is always full screen */
+.native .fullscreen-only {
+  display: none !important;
 }

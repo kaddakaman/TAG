@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TAG</string>
+    <string name="title_activity_main">TAG</string>
+    <string name="package_name">com.kaddakaman.tag</string>
+    <string name="custom_url_scheme">com.kaddakaman.tag</string>
+</resources>

@@ -161,7 +161,7 @@ export const settingsPanel: PanelDef = {
         h('span', null, 'Camera zoom'),
         h('div', { class: 'row' }, ...[0.8, 1, 1.25].map((z) => h('button', { class: `small ${g.renderer.userZoom === z ? 'sel' : ''}`, onclick: () => { g.renderer.userZoom = z; g.renderer.resize(); p.ui.refresh(); } }, z === 1 ? 'Normal' : z < 1 ? 'Far' : 'Near'))),
       ),
-      h('div', { class: 'setting' }, h('span', null, 'Fullscreen'), h('button', { class: 'small', onclick: () => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => {}); else void document.exitFullscreen?.(); } }, 'Toggle')),
+      h('div', { class: 'setting fullscreen-only' }, h('span', null, 'Fullscreen'), h('button', { class: 'small', onclick: () => { if (!document.fullscreenElement) void document.documentElement.requestFullscreen?.().catch(() => {}); else void document.exitFullscreen?.(); } }, 'Toggle')),
       h('p', { class: 'muted' }, `Input detected: ${g.input.device}. Plug in or press a button on a gamepad to switch to gamepad controls.`),
     );
   },

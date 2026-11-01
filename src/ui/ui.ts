@@ -231,6 +231,18 @@ export class UI {
     this.open(name);
   }
 
+  /** Android Back button. Returns false when there is nothing to go back from (title screen). */
+  handleBack(): boolean {
+    if (this.game.state !== 'playing') return this.title.back();
+    const top = this.top();
+    if (!top) {
+      this.open('menu');
+      return true;
+    }
+    this.handleUiAction('back');
+    return true;
+  }
+
   handleUiAction(a: UiAction): void {
     if (this.game.state !== 'playing') {
       this.title.handleUiAction(a);

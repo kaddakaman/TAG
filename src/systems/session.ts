@@ -523,7 +523,7 @@ export class Session {
     while (this.bountyOffers().length < 3 && guard++ < 20) {
       q.bountyCounter++;
       const b = generateBounty(r, this, 'b' + q.bountyCounter);
-      if (b) q.bounties.push(b);
+      if (b && !q.bounties.some((x) => x.title === b.title)) q.bounties.push(b);
     }
   }
 
