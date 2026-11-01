@@ -1,20 +1,61 @@
 # TAG - The Adventurer's Guild
 
-An isometric action RPG for mobile, in the spirit of Diablo, with RuneScape / New World style life skills and Dark Souls style respawning wilds. It runs in any modern mobile or desktop browser, can be installed as a PWA, and is playable with **touch (virtual gamepad)**, **a physical gamepad** or **keyboard**.
+An isometric action RPG for mobile, in the spirit of Diablo, with RuneScape / New World style life skills and Dark Souls style respawning wilds. It's an **Android app (APK)**, and it also runs in any modern browser. You can play it with **touch (an on-screen virtual gamepad)**, **a physical gamepad** or **a keyboard**.
 
-Everything is drawn procedurally on an HTML5 canvas, so there are no art assets to manage, and the character customisation you choose is visible in game.
+Everything is drawn procedurally, so there are no art assets to manage, and the character customisation you choose is visible in game.
 
-## Running it
+## Play it on your Android phone
+
+You don't need a computer for this.
+
+1. On your Android phone, open this link in Chrome: **https://github.com/kaddakaman/TAG/releases/latest**
+2. Under **Assets**, tap **TAG.apk** to download it.
+3. When it finishes, tap the download to open it, then tap **Install**.
+   - If the phone says it can't install apps from this source, tap **Settings**, turn on **Allow from this source**, then go back and tap **Install**.
+   - If Google Play Protect warns that the app is unrecognised, tap **More details**, then **Install anyway**. This happens for any app that isn't from the Play Store.
+4. Open **TAG** from your app drawer. It always plays in landscape and full screen.
+
+**To get a newer version**, repeat the same steps. It installs over the old one and keeps your saved games.
+
+Your saved games live inside the app, so uninstalling the app deletes them.
+
+APK files only work on Android. iPhones can't install them, but they can play the browser version below.
+
+### How the APK gets made
+
+Every time the game's code changes on GitHub, GitHub's servers automatically build a fresh `TAG.apk` and put it on the Releases page (see `.github/workflows/android.yml`). You can watch a build under the repository's **Actions** tab; each one takes about five minutes.
+
+The Android app itself lives in `android/` and uses [Capacitor](https://capacitorjs.com/) to wrap the game.
+
+**About the signing key.** Every version of the app is signed with the same key, which is what lets updates install over the old app and keep your saves. The key is stored **encrypted** in `android/app/tag-release.jks.enc`. Only GitHub's build can unlock it, using a password kept in a repository secret called `KEYSTORE_PASSWORD`. Keep a private copy of that password too: if it's lost, you'd need a new key, and updates would then need a reinstall.
+
+To set up the secret (once):
+1. On GitHub, open the repository and go to **Settings**, then **Secrets and variables**, then **Actions**.
+2. Tap **New repository secret**.
+3. For **Name**, enter `KEYSTORE_PASSWORD`. For **Secret**, paste the password. Then tap **Add secret**.
+4. Go to the **Actions** tab, open **Build Android APK**, tap **Run workflow**, then **Run workflow** again.
+
+## Play it in a browser on your computer
+
+1. Install **Node.js** from [nodejs.org](https://nodejs.org) (the **LTS** button).
+2. On GitHub, click **Code**, then **Download ZIP**, and unzip it.
+3. Open a terminal in the unzipped folder (the one containing `package.json`).
+   - **Windows:** click the folder's address bar, type `cmd` and press Enter.
+   - **Mac:** open Terminal, type `cd ` (with a space), drag the folder in, and press Enter.
+4. Type `npm install` and press Enter. You only need to do this the first time.
+5. Type `npm run dev` and press Enter, then open the **Local** address it prints (`http://localhost:5173`).
+   To stop it, press **Ctrl + C** in the terminal.
+
+### Developer commands
 
 ```bash
-npm install
-npm run dev        # dev server (also reachable from your phone on the same Wi-Fi via the printed network URL)
+npm run dev        # dev server (reachable from devices on the same Wi-Fi via the printed Network URL)
 npm run build      # type-check + production build into dist/
 npm run preview    # serve the production build
 npm test           # unit + headless world simulation tests
+npx cap sync android                                  # copy a fresh build into the Android project
+cd android && ./gradlew assembleRelease               # build the APK locally (needs the Android SDK)
 ```
-
-To play on a phone, open the dev or preview URL, then use **Add to Home Screen** to install it fullscreen. Landscape is recommended.
 
 ## Features
 
@@ -97,17 +138,15 @@ src/
   input/      unified input (keyboard, touch joystick, Gamepad API)
   ui/         DOM HUD, panels (inventory, skills, shops, forge, ...), title / slots / character creation
 tests/        vitest suites, including headless world simulations
+android/      the Android app project (Capacitor) that wraps the game into an APK
+.github/      the automatic APK build that runs on GitHub
 public/       PWA manifest, icon, service worker
 ```
 
 Content is data-driven. To add an enemy, item, recipe, quest or ability, add an entry to the relevant file in `src/data/`.
 
-## Shipping to app stores
+## Publishing to app stores
 
-The game is a static web app, so it can be wrapped with [Capacitor](https://capacitorjs.com/) for Android and iOS:
+The Android project in `android/` can be opened in Android Studio to produce a Play Store bundle (`./gradlew bundleRelease`). Before you upload, replace the signing key with a private one.
 
-```bash
-npm i @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios
-npx cap init TAG com.example.tag --web-dir=dist
-npm run build && npx cap add android && npx cap open android
-```
+An iOS version can be added the same way (`npm i @capacitor/ios && npx cap add ios`), but building it needs a Mac with Xcode.

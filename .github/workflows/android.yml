@@ -1,0 +1,90 @@
+# Builds the Android app (APK) on GitHub's servers whenever the game changes,
+# and publishes it at: https://github.com/kaddakaman/TAG/releases/latest
+#
+# One-time setup: add a repository secret named KEYSTORE_PASSWORD
+# (Settings > Secrets and variables > Actions). It unlocks the app's signing
+# key, which is stored encrypted in android/app/tag-release.jks.enc.
+name: Build Android APK
+
+on:
+  push:
+    branches: [ccr-3f7a832f-sixaos, main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unlock the signing key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error title=Signing key password missing::Add a repository secret named KEYSTORE_PASSWORD (Settings > Secrets and variables > Actions > New repository secret), then run this workflow again."
+            exit 1
+          fi
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+            -in android/app/tag-release.jks.enc -out android/app/tag-release.jks \
+            -pass env:KEYSTORE_PASSWORD
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install game tools
+        run: npm ci
+
+      - name: Run the game's tests
+        run: npm test
+
+      - name: Build the game
+        run: npm run build
+
+      - name: Copy the game into the Android app
+        run: npx cap sync android
+
+      - name: Build the APK
+        working-directory: android
+        env:
+          KEYSTORE_FILE: app/tag-release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 0.1.${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk ../TAG.apk
+
+      - name: Remove the unlocked key
+        if: always()
+        run: rm -f android/app/tag-release.jks
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TAG-apk
+          path: TAG.apk
+
+      - name: Publish the APK on the Releases page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest TAG.apk \
+            --target "${{ github.sha }}" \
+            --title "TAG - latest build (version 0.1.${{ github.run_number }})" \
+            --notes "Android phones and tablets: download TAG.apk below, open it, and tap Install. If your phone asks, allow your browser to install unknown apps. Installing a newer build keeps your saved games."

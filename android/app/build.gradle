@@ -1,11 +1,17 @@
 apply plugin: 'com.android.application'
 
-// Signing key (see keystore.properties). Keeping one key means updates install over the old app.
+// Signing key. Every version must be signed with the same key so updates install
+// over the old app and keep saved games. Only an encrypted copy is in the project
+// (app/tag-release.jks.enc); the GitHub build unlocks it with the KEYSTORE_PASSWORD
+// secret. For local builds you can instead create a git-ignored keystore.properties.
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
 }
+def signingStoreFile = System.getenv("KEYSTORE_FILE") ?: keystoreProperties['storeFile']
+def signingPassword = System.getenv("KEYSTORE_PASSWORD") ?: keystoreProperties['storePassword']
+def signingAlias = System.getenv("KEY_ALIAS") ?: keystoreProperties['keyAlias'] ?: 'tag'
 
 android {
     namespace = "com.kaddakaman.tag"
@@ -26,11 +32,11 @@ android {
     }
     signingConfigs {
         release {
-            if (keystorePropertiesFile.exists()) {
-                storeFile rootProject.file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
+            if (signingStoreFile && signingPassword) {
+                storeFile rootProject.file(signingStoreFile)
+                storePassword signingPassword
+                keyAlias signingAlias
+                keyPassword signingPassword
             }
         }
     }
