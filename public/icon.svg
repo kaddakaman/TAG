@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe9a0"/>
+      <stop offset="1" stop-color="#b8862a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="#1a140e"/>
+  <path d="M256 60 L430 150 L430 300 Q430 400 256 460 Q82 400 82 300 L82 150 Z" fill="#2a4d8b" stroke="url(#g)" stroke-width="18"/>
+  <text x="256" y="320" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="150" fill="url(#g)">TAG</text>
+</svg>

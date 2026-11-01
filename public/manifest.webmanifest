@@ -1,0 +1,14 @@
+{
+  "name": "TAG - The Adventurer's Guild",
+  "short_name": "TAG",
+  "description": "An isometric action RPG with classes, life skills, crafting and a town to build up.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#120e0a",
+  "theme_color": "#120e0a",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
